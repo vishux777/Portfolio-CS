@@ -218,7 +218,7 @@ document.addEventListener('mousemove', (e) => {
     });
 });
 
-// Contact form handling
+// Contact form handling with EmailJS
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
     contactForm.addEventListener('submit', function(e) {
@@ -239,18 +239,30 @@ if (contactForm) {
             return;
         }
         
-        // Simulate form submission
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>SENDING...</span>';
         submitBtn.disabled = true;
         
-        setTimeout(() => {
+        // Send email using EmailJS
+        emailjs.send('service_y2jsgas', 'template_hf2pdug', {
+            from_name: data.name,
+            from_email: data.email,
+            subject: data.subject,
+            message: data.message
+        })
+        .then(() => {
             showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
-            this.reset();
+            contactForm.reset();
+        })
+        .catch((error) => {
+            console.error('Failed to send message:', error);
+            showNotification('Failed to send message. Please try again later.', 'error');
+        })
+        .finally(() => {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-        }, 2000);
+        });
     });
 }
 
