@@ -1,3 +1,8 @@
+// Initialize EmailJS
+(function() {
+    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your actual EmailJS public key
+})();
+
 // Loading Screen
 window.addEventListener('load', function() {
     setTimeout(() => {
@@ -226,15 +231,18 @@ if (contactForm) {
         
         // Get form data
         const formData = new FormData(this);
-        const data = Object.fromEntries(formData);
+        const name = formData.get('name');
+        const email = formData.get('email');
+        const subject = formData.get('subject');
+        const message = formData.get('message');
         
         // Simple validation
-        if (!data.name || !data.email || !data.subject || !data.message) {
+        if (!name || !email || !subject || !message) {
             showNotification('Please fill in all fields', 'error');
             return;
         }
         
-        if (!isValidEmail(data.email)) {
+        if (!isValidEmail(email)) {
             showNotification('Please enter a valid email address', 'error');
             return;
         }
@@ -244,26 +252,55 @@ if (contactForm) {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>SENDING...</span>';
         submitBtn.disabled = true;
         
-        // Send email using EmailJS
-        emailjs.send('service_y2jsgas', 'template_hf2pdug', {
-            from_name: data.name,
-            from_email: data.email,
-            subject: data.subject,
-            message: data.message
-        })
-        .then(() => {
+        // EmailJS send with proper error handling
+        emailjs.send(
+            'YOUR_SERVICE_ID',  // Replace with your EmailJS service ID
+            'YOUR_TEMPLATE_ID', // Replace with your EmailJS template ID
+            {
+                from_name: name,
+                from_email: email,
+                subject: subject,
+                message: message,
+                to_name: 'Vishwas Kamboj',
+                to_email: 'kambojvishwas71@gmail.com'
+            }
+        )
+        .then(function(response) {
+            console.log('SUCCESS!', response.status, response.text);
             showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
             contactForm.reset();
         })
-        .catch((error) => {
-            console.error('Failed to send message:', error);
-            showNotification('Failed to send message. Please try again later.', 'error');
+        .catch(function(error) {
+            console.error('FAILED...', error);
+            // Fallback to mailto if EmailJS fails
+            const mailtoLink = `mailto:kambojvishwas71@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}`;
+            window.location.href = mailtoLink;
+            showNotification('Redirecting to your email client...', 'info');
         })
-        .finally(() => {
+        .finally(function() {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         });
     });
+}
+
+// Alternative contact form handler without EmailJS
+function handleContactFormFallback(formData) {
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const subject = formData.get('subject');
+    const message = formData.get('message');
+    
+    // Create mailto link
+    const mailtoLink = `mailto:kambojvishwas71@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}`;
+    
+    // Open email client
+    window.location.href = mailtoLink;
+    
+    showNotification('Opening your email client...', 'success');
+    
+    // Reset form
+    contactForm.reset();
 }
 
 // Email validation
