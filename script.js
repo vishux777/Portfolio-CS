@@ -604,6 +604,7 @@ if ('IntersectionObserver' in window) {
         });
     });
     
+    
     document.querySelectorAll('img[data-src]').forEach(img => {
         imageObserver.observe(img);
     });
