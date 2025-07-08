@@ -48,7 +48,7 @@ Portfolio-CS/
 
 ## 💻 Live Preview
 
-> Will be added once the portfolio is complete and deployed.
+> https://vishux777.github.io/Portfolio-CS/
 
 ---
 
